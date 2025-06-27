@@ -1,5 +1,5 @@
 import docx.document
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,  render_template
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 import json, re, os, io
@@ -15,6 +15,7 @@ import fitz
 from flask_cors import CORS
 
 
+
 app =Flask(__name__)
 # CORS(app)  # <-- enable CORS for all routes
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -27,6 +28,11 @@ API_KEY = os.getenv("My_API_KEY")
 
 #ai model name
 MODEL_NAME = "llama3-8b-8192"
+
+@app.route('/')
+def home():
+    return render_template('ChatbotUI.html')
+
 
 
 #extract json from text
