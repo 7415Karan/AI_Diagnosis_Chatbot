@@ -77,7 +77,7 @@ def extract_text_from_image(image_file):
         return " "
 
 #api route
-@app.route('/diagnosis', methods=['POST'])
+@app.route('/', methods=['POST'])
 def diagnosis_prediction():
     
     symptoms = request.form.get('symptoms', '').strip()
