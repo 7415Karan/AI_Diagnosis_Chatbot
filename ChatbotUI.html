@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Diagnosis Chatbot</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background-color: #c2c6cb13;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        }
+
+        .chatbot-container {
+            width: 100%;
+            max-width: 600px;
+            height: 85vh;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background-color: rgba(154, 151, 146, 0.915);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 500;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-message {
+            padding: 0.75rem 1.25rem;
+            border-radius: 18px;
+            max-width: 75%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            background-color: #0d6efd;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #212529;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .chat-input {
+            display: flex;
+            align-items: center;
+        }
+
+        #user-input {
+            border-radius: 20px;
+        }
+
+        #send-btn, #attach-btn {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .attachment-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: space-between;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chat-header">
+           🧑‍⚕️ AI Diagnosis Chatbot 
+        </div>
+        <div class="chat-box" id="chat-box">
+            <div class="chat-message bot-message">
+                Hello! How can I help you today? You can also attach a document if needed.
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <div class="px-2">
+                <div class="row g-2 mb-2">
+                    <div class="col">
+                        <input type="number" class="form-control" id="age-input" placeholder="Your Age" min="0">
+                    </div>
+                    <div class="col">
+                        <select class="form-select" id="gender-input">
+                            <option value="" selected disabled>Select Gender...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="file" id="file-input" class="d-none">
+                    <button class="btn btn-light me-2" id="attach-btn" title="Attach document">
+                        <i class="bi bi-paperclip"></i>
+                    </button>
+                    <input type="text" class="form-control" id="user-input" placeholder="Describe your symptoms or attach a document...">
+                    <button class="btn btn-primary ms-2" id="send-btn">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+                <div id="attachment-info" class="attachment-info mt-2">
+                    <div>
+                        Attached file: <span id="file-name"></span>
+                    </div>
+                    <button type="button" class="btn-close btn-sm" aria-label="Close" id="remove-file-btn"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+    const ageInput = document.getElementById('age-input');
+    const genderInput = document.getElementById('gender-input');
+    const sendBtn = document.getElementById('send-btn');
+    const attachBtn = document.getElementById('attach-btn');
+    const fileInput = document.getElementById('file-input');
+    const attachmentInfo = document.getElementById('attachment-info');
+    const fileNameSpan = document.getElementById('file-name');
+    const removeFileBtn = document.getElementById('remove-file-btn');
+
+    function addMessage(message, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'bot-message');
+        messageElement.innerHTML = message; // Use innerHTML to render formatted bot responses
+        chatBox.appendChild(messageElement);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function setSendingState(isSending) {
+        userInput.disabled = isSending;
+        sendBtn.disabled = isSending;
+        if (isSending) {
+            sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        } else {
+            sendBtn.innerHTML = '<i class="bi bi-send-fill"></i>';
+        }
+    }
+
+    function formatBotResponse(data) {
+        let html = `<strong>Diagnosis:</strong> ${data.diagnosis || 'N/A'}`;
+        if (data.prescription && data.prescription.length > 0) {
+            html += `<br><strong>Prescription:</strong><ul>`;
+            data.prescription.forEach(p => {
+                html += `<li>${p.medicine_name} (${p.dose}, ${p.frequency} for ${p.duration})</li>`;
+            });
+            html += `</ul>`;
+        }
+
+        if (data.duration) {
+            html += `<strong>Duration:</strong> ${data.duration}<br>`;
+        }
+
+        if (data.tests && data.tests.length > 0) {
+            html += `<strong>Suggested Tests:</strong><ul>${data.tests.map(t => `<li>${t}</li>`).join('')}</ul>`;
+        }
+
+        if (data.safety) {
+            html += `<strong>Safety Advice:</strong> ${data.safety}<br>`;
+        }
+
+        if (data["Do and Don'ts"]) {
+            const dos = data["Do and Don'ts"].Do || [];
+            const donts = data["Do and Don'ts"]["Don't"] || [];
+            if (dos.length > 0) {
+                html += `<strong>Do:</strong><ul>${dos.map(i => `<li>${i}</li>`).join('')}</ul>`;
+            }
+            if (donts.length > 0) {
+                html += `<strong>Don't:</strong><ul>${donts.map(i => `<li>${i}</li>`).join('')}</ul>`;
+            }
+        }
+
+        if (data.Note) {
+            html += `<hr class="my-1"><p class="mb-0"><em><small>${data.Note}</small></em></p>`;
+        }
+
+        return html;
+    }
+
+    async function handleSend() {
+        const symptoms = userInput.value.trim();
+        const age = ageInput.value;
+        const gender = genderInput.value;
+        const attachedFile = fileInput.files[0];
+
+        if (!symptoms || !age || !gender) {
+            alert('Please fill your age, gender, and symptoms.');
+            return;
+        }
+        addMessage(symptoms, 'user');
+        userInput.value = '';
+        setSendingState(true);
+
+        const formData = new FormData();
+        formData.append('symptoms', symptoms);
+        formData.append('age', age);
+        formData.append('gender', gender);
+        if (attachedFile) {
+            formData.append('report_file', attachedFile);
+            fileInput.value = '';
+            attachmentInfo.style.display = 'none';
+        }
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/diagnosis', { method: 'POST', body: formData });
+            
+            const data = await response.json();
+            const botHtmlResponse = response.ok ? formatBotResponse(data) : `Error: ${data.error || 'Unknown error'}`;
+            addMessage(botHtmlResponse, 'bot');
+        } catch (error) {
+            addMessage('An error occurred while connecting to the server.', 'bot');
+            console.error('Fetch Error:', error);
+        } finally {
+            setSendingState(false);
+        }
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keypress', (e) => e.key === 'Enter' && handleSend());
+    attachBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            fileNameSpan.textContent = fileInput.files[0].name;
+            attachmentInfo.style.display = 'flex';
+        }
+    });
+
+    removeFileBtn.addEventListener('click', () => {
+        fileInput.value = '';
+        attachmentInfo.style.display = 'none';
+    });
+</script>
+</body>
+</html>
