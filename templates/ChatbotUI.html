@@ -250,11 +250,30 @@
         }
 
         try {
-            const response = await fetch('https://ai-diagnosis-chatbot-2.onrender.com', { method: 'POST', body: formData });
-            
+            const response = await fetch('/', {
+                method: 'POST',
+                body: formData
+            });
             const data = await response.json();
-            const botHtmlResponse = response.ok ? formatBotResponse(data) : `Error: ${data.error || 'Unknown error'}`;
-            addMessage(botHtmlResponse, 'bot');
+
+            if (response.ok) {
+                // Check for clarification questions
+                if (data.status === 'clarification_needed' && Array.isArray(data.questions)) {
+                    data.questions.forEach(question => {
+                        addMessage(question, 'bot');
+                    });
+                } 
+                // Check for a full diagnosis
+                else if (data.diagnosis) {
+                    const botHtmlResponse = formatBotResponse(data);
+                    addMessage(botHtmlResponse, 'bot');
+                } else {
+                    addMessage("I received a response I couldn't understand. Please try again.", 'bot');
+                }
+            } else {
+                const errorMessage = `Error: ${data.error || 'Unknown error'}`;
+                addMessage(errorMessage, 'bot');
+            }
         } catch (error) {
             addMessage('An error occurred while connecting to the server.', 'bot');
             console.error('Fetch Error:', error);
